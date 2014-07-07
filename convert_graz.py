@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # #*** <License> ************************************************************#
-# This module is part of the program FFM.
+# This module is part of the program FFW.
 #
 # This module is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -28,12 +28,13 @@ from   rsclib.Phone           import Phone
 from   rsclib.sqlparser       import make_naive, SQL_Parser
 from   _GTW                   import GTW
 from   _TFL                   import TFL
-from   _FFM                   import FFM
+from   _CNDB                  import CNDB
+import _CNDB._OMP
 from   _GTW._OMP._PAP         import PAP
 from   _MOM.import_MOM        import Q
 
 import _TFL.CAO
-import model
+import Command
 
 class Convert (object) :
 
@@ -150,7 +151,7 @@ class Convert (object) :
         else :
             f = sys.stdin
         self.scope        = scope
-        self.ffm          = self.scope.FFM
+        self.ffw          = self.scope.CNDB
         self.pap          = self.scope.GTW.OMP.PAP
         self.networks     = {}
 
@@ -159,7 +160,7 @@ class Convert (object) :
         self.contents     = self.parser.contents
         self.tables       = self.parser.tables
         self.dev_by_id    = {}
-        self.ffm_node     = {}
+        self.ffw_node     = {}
         self.member_by_id = {}
         self.net_by_id    = {}
         self.nicknames    = {}
@@ -191,7 +192,7 @@ class Convert (object) :
 
     def create_devices (self) :
         # ignore snmp_ip and snmp_lastseen (only used by three nodes)
-        dt = self.ffm.Net_Device_Type.instance (name = 'Generic', raw = True)
+        dt = self.ffw.Net_Device_Type.instance (name = 'Generic', raw = True)
         for d in sorted (self.contents ['node'], key = lambda x : x.id) :
             if self.verbose :
                 print "INFO: Dev: %s Node: %s" % (d.id, d.location_id)
@@ -204,14 +205,14 @@ class Convert (object) :
                           "person mismatch d:%s n:%s"
                         % (d.id, n.id, d.person_id, n.person_id)
                         )
-                node = self.ffm_node.get (d.location_id)
+                node = self.ffw_node.get (d.location_id)
                 if not node :
                     print "WARN: Node (location) %s for dev (node) %s missing" \
                         % (d.location_id, d.id)
                     continue
             else :
                 mgr  = self.person_by_id.get (d.person_id) or self.graz_admin
-                node = self.ffm.Node \
+                node = self.ffw.Node \
                     ( name        = d.name
                     , desc        = 'Auto-created node (id: %s)' % d.location_id
                     , show_in_map = True
@@ -220,7 +221,7 @@ class Convert (object) :
                     )
                 print "WARN: Manufacturing Node (loc: %s) for dev (node) %s" \
                     % (d.location_id, d.id)
-            dev = self.ffm.Net_Device \
+            dev = self.ffw.Net_Device \
                 ( left = dt
                 , node = node
                 , name = d.name
@@ -239,7 +240,7 @@ class Convert (object) :
                 print 'WARN: ignoring dns_alias %s "%s" IP not found %s' \
                     % (dal.id, dal.name, dal.ip_id)
                 return
-            self.ffm.IP4_DNS_Alias \
+            self.ffw.IP4_DNS_Alias \
                 (left = self.nifin_by_id [dal.ip_id], name = dal.name)
             if len (self.scope.uncommitted_changes) > 10 :
                 self.scope.commit ()
@@ -255,7 +256,7 @@ class Convert (object) :
             net = self.net_by_id [iface.net_id]
             ip  = IP4_Address (iface.ip)
             if ip not in net.net_address :
-                parent = self.ffm.IP4_Network.query \
+                parent = self.ffw.IP4_Network.query \
                     ( Q.net_address.CONTAINS (ip)
                     , ~ Q.electric
                     , sort_key = TFL.Sorted_By ("-net_address.mask_len")
@@ -269,8 +270,8 @@ class Convert (object) :
                       )
                 net = parent
             nw  = net.reserve (ip, owner = dev.node.owner)
-            nif = self.ffm.Wired_Interface (left = dev, name = iface.name)
-            nii = self.ffm.Net_Interface_in_IP4_Network \
+            nif = self.ffw.Wired_Interface (left = dev, name = iface.name)
+            nii = self.ffw.Net_Interface_in_IP4_Network \
                 (nif, nw, mask_len = 32, name = iface.name)
             self.nifin_by_id [iface.id] = nii
             if len (self.scope.uncommitted_changes) > 10 :
@@ -291,7 +292,7 @@ class Convert (object) :
                 if ip.mask not in by_mask :
                     by_mask [ip.mask] = []
                 by_mask [ip.mask].append ((ip, nw.name, nw.id))
-        typ = self.ffm.IP4_Network
+        typ = self.ffw.IP4_Network
         for mask in sorted (by_mask) :
             for ip, name, id in by_mask [mask] :
                 if id not in self.ntype_by_id :
@@ -311,7 +312,7 @@ class Convert (object) :
     def create_networks (self) :
         for net in self.contents ['net'] :
             parents = self.ntype_by_id.get (net.nettype_id, [])
-            node    = self.ffm_node.get (net.location_id)
+            node    = self.ffw_node.get (net.location_id)
             ip      = IP4_Address (net.netip, net.netmask)
             if node :
                 owner = node.owner
@@ -333,7 +334,7 @@ class Convert (object) :
                             print "Got parent in ntype_by_id: %s" % parent
                             break
                 else :
-                    parent = self.ffm.IP4_Network.query \
+                    parent = self.ffw.IP4_Network.query \
                         ( Q.net_address.CONTAINS (ip)
                         , ~ Q.electric
                         , sort_key = TFL.Sorted_By ("-net_address.mask_len")
@@ -344,11 +345,11 @@ class Convert (object) :
                 reserver = parent.reserve
             else :
                 print "WARN: No parent: new network: %s" % ip
-                reserver = self.ffm.IP4_Network
+                reserver = self.ffw.IP4_Network
             network = reserver (ip, owner = owner)
             self.net_by_id [net.id] = network
             if node :
-                pool = self.ffm.IP4_Pool (left = network, node = node)
+                pool = self.ffw.IP4_Pool (left = network, node = node)
             if net.comment :
                 network.set_raw (desc = net.comment)
             if len (self.scope.uncommitted_changes) > 10 :
@@ -378,7 +379,7 @@ class Convert (object) :
                 lon = "%f" % (x_lon + (n.pixel_x - x_start) / dx_lon)
                 lat = "%f" % (y_lat + (n.pixel_y - y_start) / dy_lat)
 
-            node = self.ffm.Node \
+            node = self.ffw.Node \
                 ( name        = n.name
                 , desc        = n.comment.strip () or None
                 , show_in_map = not n.hidden
@@ -386,7 +387,7 @@ class Convert (object) :
                 , position    = dict (lat = lat, lon = lon)
                 , raw         = True
                 )
-            self.ffm_node [n.id] = node
+            self.ffw_node [n.id] = node
             self.set_creation (node, n.time)
             if n.street :
                 s = ' '.join (x for x in (n.street, n.streetnr) if x)
@@ -545,7 +546,7 @@ class Convert (object) :
 
 
 def _main (cmd) :
-    scope = model.scope (cmd)
+    scope = Command.scope (cmd)
     if cmd.Break :
         TFL.Environment.py_shell ()
     c = Convert (cmd, scope)
@@ -566,9 +567,9 @@ _Command = TFL.CAO.Cmd \
         ( "verbose:B"
         , "anonymize:B"
         , "create:B"
-        ) + model.opts
+        ) + Command.opts
     , min_args        = 1
-    , defaults        = model.command.defaults
+    , defaults        = Command.command.defaults
     )
 
 if __name__ == "__main__" :
