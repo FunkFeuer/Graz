@@ -108,7 +108,7 @@ from   _CNDB._GTW import RST_addons
 
 GTW.OMP.PAP.Phone.change_attribute_default         ("country_code", "43")
 
-FFW.Version = Product_Version \
+FFG.Version = Product_Version \
     ( productid           = u"FFG node data base"
     , productnick         = u"FFG"
     , productdesc         = u"Web application for FFG node data base"
@@ -282,7 +282,7 @@ class Command (_Base_Command_, GTW.Werkzeug.Command) :
             , TOP.MOM.Doc.App_Type
                 ( name            = "Doc"
                 , short_title     = _ ("Model doc")
-                , title           = _ ("Documentation for FFW object model")
+                , title           = _ ("Documentation for FFG object model")
                 )
             , TOP.MOM.Admin.Site
                 ( name            = "Admin"
