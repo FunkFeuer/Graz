@@ -29,6 +29,8 @@
 #    17-Dec-2012 (RS) Creation, move old fixtures.py to _FFW
 #    27-May-2013 (CT) Remove trivial `password` values
 #    28-Apr-2014 (CT) Add account `aaron@lo-res.org` and group `FFW-admin`
+#    01-Sep-2014 (MB) Add account 'mihi@lo-res.org'
+#    01-Sep-2014 (MB) Move to FFG
 #    ««revision-date»»···
 #--
 

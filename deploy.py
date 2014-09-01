@@ -32,6 +32,7 @@
 #     2-Jun-2012 (CT) Replace `config_defaults` by `Config`
 #     3-Jun-2012 (CT) Factor `_Base_Command_`, add `App_Config`
 #    10-Jul-2014 (CT) Derive `Command` from `CNDB.GTW.deploy.Command`, too
+#    01-Sep-2014 (MB) Move to FFG
 #    ««revision-date»»···
 #--
 
