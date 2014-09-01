@@ -1,0 +1,37 @@
+# -*- coding: utf-8 -*-
+# Copyright (C) 2014 Mag. Christian Tanzer All rights reserved
+# Glasauergasse 32, A--1130 Wien, Austria. tanzer@swing.co.at
+# #*** <License> ************************************************************
+# This module is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This module is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this module. If not, see <http://www.gnu.org/licenses/>.
+# #*** </License> ***********************************************************#
+#
+#++
+# Name
+#    html/dashboard/app.jnj.media
+#
+# Purpose
+#    Media fragment for template html/dashboard/app.jnj
+#
+# Revision Dates
+#     9-Apr-2014 (CT) Creation
+#     2-May-2014 (CT) Add rules for `form.login`, `form.logout`
+#    14-May-2014 (CT) Factor rules for `form` to `JNJ/html/mf3.m.jnj.media`
+#     9-Jul-2014 (CT) Remove CNDB specific stuff, i.e., everything
+#    01-Sep-2014 (MB) Moved to FFG
+#    ««revision-date»»···
+#--
+
+Include ("CNDB::html/dashboard/app.jnj.media")
+
+### __END__ html/dashboard/app.jnj.media

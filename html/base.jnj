@@ -1,0 +1,40 @@
+{%- extends "CNDB::html/base.jnj" %}
+{#- jinja template: base.jnj -#}
+{#
+## Copyright (C) 2012-2014 Mag. Christian Tanzer All rights reserved
+## Glasauergasse 32, A--1130 Wien, Austria. tanzer@swing.co.at
+## #*** <License> ************************************************************#
+## This template is part of the web page ffg.futr.us.
+##
+## This template is free software: you can redistribute it and/or modify
+## it under the terms of the GNU Affero General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+##
+## This template is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+## GNU Affero General Public License for more details.
+##
+## You should have received a copy of the GNU Affero General Public License
+## along with this template. If not, see <http://www.gnu.org/licenses/>.
+## #*** </License> ***********************************************************#
+##
+##++
+## Name
+##    html/base.jnj
+##
+## Purpose
+##    Base template for ffg.futr.us.
+##
+## Revision Dates
+##    27-Mar-2012 (CT) Creation
+##     9-Jul-2014 (CT) Remove CNDB specific stuff, i.e., everything
+##    01-Sep-2014 (MB) Move to FFG
+##    ««revision-date»»···
+##--
+#}
+
+{#- You can redefine or override blocks of the CNDB::html/base.jnj template -#}
+
+{#- __END__ jinja template: html/base.jnj -#}

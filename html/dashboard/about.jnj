@@ -1,0 +1,63 @@
+{%- extends "CNDB::html/dashboard/about.jnj" %}
+{#- jinja template: html/dashboard/about.jnj -#}
+{#
+## Copyright (C) 2014 Mag. Christian Tanzer All rights reserved
+## Glasauergasse 32, A--1130 Wien, Austria. tanzer@swing.co.at
+## #*** <License> ************************************************************
+## This template is free software: you can redistribute it and/or modify
+## it under the terms of the GNU Affero General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+##
+## This template is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+## GNU Affero General Public License for more details.
+##
+## You should have received a copy of the GNU Affero General Public License
+## along with this template. If not, see <http://www.gnu.org/licenses/>.
+## #*** </License> ***********************************************************#
+##
+##++
+## Name
+##    html/dashboard/about.jnj
+##
+## Purpose
+##    Dashboard specific `About` page
+##
+## Revision Dates
+##     5-May-2014 (CT) Creation
+##     9-Jul-2014 (CT) Remove CNDB specific stuff
+##    01-Sep-2014 (MB) Move to FFG)
+##    ««revision-date»»···
+##--
+#}
+
+{%- block source_code -%}
+  {{ super () }}
+  Den Funkfeuer-Graz spezifischen Source Code findest du auf
+  <a href="http://github.com/FFM/FFG/">github</a>.
+{%- endblock source_code -%}
+
+{%- block welcome_image -%}
+  <img src="/media/images/main_graphic_small.png">
+{%- endblock welcome_image -%}
+
+{%- block contents -%}
+  <h2>Über</h2>
+  <p>
+    Die common Node Data Base ist ein Projekt bei
+    Funkfeuer, um die alte bestehende Verwaltungs-Datenbank zu ersetzen und
+    zu erweitern. Während die alte Datenbank uns viele Jahre erfolgreich
+    gedient hat und die IP Adressenverwaltung bei Funkfeuer Wien überhaupt
+    ermöglicht hat, gab es — wie so oft — im Laufe der Zeit immer
+    mehr Wünsche bezüglich neuer Funktionalität.
+  </p>
+  <p>
+    Die common Node DB wurde im Rahmen des EU geförderten Projektes
+    <a href="http://www.confine-project.eu">“CONFINE”</a>
+    implementiert.
+  </p>
+{%- endblock contents -%}
+
+{#- __END__ jinja template: html/dashboard/about.jnj -#}

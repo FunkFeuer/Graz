@@ -1,0 +1,40 @@
+# -*- coding: utf-8 -*-
+# Copyright (C) 2012-2014 Mag. Christian Tanzer All rights reserved
+# Glasauergasse 32, A--1130 Wien, Austria. tanzer@swing.co.at
+# #*** <License> ************************************************************#
+# This module is part of the web page ffg.futr.us.
+#
+# This module is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This module is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this module. If not, see <http://www.gnu.org/licenses/>.
+# #*** </License> ***********************************************************#
+#
+#++
+# Name
+#    html/base.jnj.media
+#
+# Purpose
+#    Media fragment for template base.jnj
+#
+# Revision Dates
+#    29-Mar-2012 (CT) Creation
+#     4-Dec-2012 (CT) Remove `http:` (--> protocol-relative)
+#    17-Dec-2012 (CT) Add rules for `textarea.Long` and `.Very-Long`
+#    29-Apr-2013 (CT) Add `GTW.Script._.GTW_jq_util`
+#     9-Jul-2014 (CT) Remove CNDB specific stuff, i.e., everything
+#    01-Sep-2014 (MB) Move to FFG
+#    ««revision-date»»···
+#--
+
+Include ("CNDB::html/base.jnj.media")
+
+### __END__ html/base.jnj.media

@@ -1,0 +1,48 @@
+{%- extends "CNDB::html/dashboard/app.jnj" %}
+{#- jinja template: html/dashboard/app.jnj -#}
+{#
+## Copyright (C) 2014 Mag. Christian Tanzer All rights reserved
+## Glasauergasse 32, A--1130 Wien, Austria. tanzer@swing.co.at
+## #*** <License> ************************************************************
+## This template is free software: you can redistribute it and/or modify
+## it under the terms of the GNU Affero General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+##
+## This template is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+## GNU Affero General Public License for more details.
+##
+## You should have received a copy of the GNU Affero General Public License
+## along with this template. If not, see <http://www.gnu.org/licenses/>.
+## #*** </License> ***********************************************************#
+##
+##++
+## Name
+##    html/dashboard/app.jnj
+##
+## Purpose
+##    Funkfeuer specific extension of "CNDB::html/dashboard/app.jnj"
+##
+## Revision Dates
+##     9-Apr-2014 (CT) Creation
+##    14-Apr-2014 (CT) Factor `nav_menu_links`, `nav_menu_person`
+##    15-Apr-2014 (CT) Add `ff_dashboard` to `body_tail_scripts`
+##    17-Apr-2014 (CT) Add dashboard divisions `app-edit`, `-user`, `-view`
+##    19-Apr-2014 (CT) Use `app_div_id`, `app_div_prefix`
+##     2-May-2014 (CT) Add blocks `app` and `main`
+##     5-May-2014 (CT) Factor macro `nav_menu_dashboard` to `app.m.jnj`
+##     2-Jul-2014 (CT) Move `edit` behind `div#app` (form style)
+##     9-Jul-2014 (CT) Remove CNDB specific stuff, i.e., almost everything
+##    01-Sep-2014 (MB) Moved to FFG
+##    ««revision-date»»···
+##--
+#}
+
+{%- block body_footer_right -%}
+  The development of this site was financed by the
+  <a href="http://confine-project.eu">EU FP7 Confine project</a>.
+{%- endblock body_footer_right -%}
+
+{#- __END__ jinja template: html/dashboard/app.jnj -#}
