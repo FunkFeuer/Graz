@@ -2,7 +2,7 @@
 # Copyright (C) 2012-2014 Mag. Christian Tanzer All rights reserved
 # Glasauergasse 32, A--1130 Wien, Austria. tanzer@swing.co.at
 # ****************************************************************************
-# This script is part of the FFW program.
+# This script is part of the FFG program.
 #
 # This script is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -35,7 +35,7 @@ cmd=${1:?"Specify a command: extract | language | compile"}; shift
 export PYTHONPATH=$(pwd):~/CNDB:$PYTHONPATH
 
 default_langs="en,de"
-default_dirs="_FFW ."
+default_dirs="_FFG ."
 lib=$(dirname $(python -c 'from _TFL import sos; print sos.path.dirname (sos.__file__)'))
 
 case "$cmd" in
@@ -47,7 +47,7 @@ case "$cmd" in
             -charset             utf-8                                        \
             -copyright_holder    "Mag. Christian Tanzer, Ralf Schlatterbeck"  \
             -global_config       ${lib}/_MOM/base_babel.cfg                   \
-            -project             "FFW"                                        \
+            -project             "FFG"                                        \
             -sort                                                             \
                 $dirs
         ;;
