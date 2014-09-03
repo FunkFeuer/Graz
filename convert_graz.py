@@ -349,7 +349,9 @@ class Convert (object) :
             network = reserver (ip, owner = owner)
             self.net_by_id [net.id] = network
             if node :
-                pool = self.ffw.IP4_Pool (left = network, node = node)
+                name = ':'.join ((node.name, str (network.net_address)))
+                pool = self.ffw.IP4_Pool (name = name, node = node)
+                self.ffw.IP4_Network_in_IP4_Pool (network, pool)
             if net.comment :
                 network.set_raw (desc = net.comment)
             if len (self.scope.uncommitted_changes) > 10 :
