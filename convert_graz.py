@@ -172,6 +172,7 @@ class Convert (object) :
     # end def __init__
 
     def create (self) :
+        self.fugru = self.pap.Adhoc_Group ("Funker Gruppe")
         if self.anonymize :
             self.fake_persons ()
         else :
@@ -281,12 +282,28 @@ class Convert (object) :
     def create_nettypes (self) :
         """ Network ranges for reservation
         """
-        by_mask = {}
+        by_mask    = {}
+        pool_by_id = {}
         # first group by netmask
         for nw in self.contents ['nettype'] :
             if not nw.comment :
                 print 'WARN: Ignoring nettype %s "%s"' % (nw.id, nw.name)
                 continue
+            pool = pool_by_id [nw.id] = self.ffw.IP4_Pool (name = nw.name)
+            if nw.name == 'GRAZ Client Subnet /29' :
+                try :
+                    self.ffw.IP4_Pool_permits_Group \
+                        (pool, self.fugru, node_quota = 29)
+                except Exception as exc :
+                    import pdb; pdb.set_trace ()
+
+            netmask = None
+            try :
+                netmask = int (nw.name.split ('/') [-1])
+            except ValueError :
+                pass
+            if netmask :
+                pool.set (netmask_interval = (netmask,))
             for net_ip in nw.comment.split (',') :
                 ip = IP4_Address (net_ip)
                 if ip.mask not in by_mask :
@@ -305,6 +322,7 @@ class Convert (object) :
                 reserver = r.reserve if r else typ
                 network  = reserver (ip, owner = self.graz_admin)
                 self.ntype_by_id [id].append (network)
+                self.ffw.IP4_Network_in_IP4_Pool (network, pool_by_id [id])
                 if name :
                     network.set_raw (desc = name)
     # end def create_nettypes
@@ -314,6 +332,9 @@ class Convert (object) :
             parents = self.ntype_by_id.get (net.nettype_id, [])
             node    = self.ffw_node.get (net.location_id)
             ip      = IP4_Address (net.netip, net.netmask)
+            if parents and ip == parents [0].net_address :
+                self.net_by_id [net.id] = parents [0]
+                continue
             if node :
                 owner = node.owner
             else :
@@ -463,6 +484,7 @@ class Convert (object) :
                 , last_name  = ln
                 , raw        = True
                 )
+            self.pap.Person_in_Group (person, self.fugru)
             self.person_by_id [m.id] = person
             if m.nick :
                 self.try_insert_nick (m.nick, m.id, person)
