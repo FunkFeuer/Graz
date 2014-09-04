@@ -194,6 +194,7 @@ class Convert (object) :
 
     def create_devices (self) :
         # ignore snmp_ip and snmp_lastseen (only used by three nodes)
+        secondary_nodes = {}
         dt = self.ffw.Net_Device_Type.instance (name = 'Generic', raw = True)
         for d in sorted (self.contents ['node'], key = lambda x : x.id) :
             if self.verbose :
@@ -201,17 +202,45 @@ class Convert (object) :
             node = None
             n = self.node_by_id.get (d.location_id)
             if n :
-                if d.person_id and d.person_id != n.person_id :
-                    print \
-                        ( "WARN: Device (node) %s, (loc) %s: "
-                          "person mismatch d:%s n:%s"
-                        % (d.id, n.id, d.person_id, n.person_id)
-                        )
-                node = self.ffw_node.get (d.location_id)
-                if not node :
-                    print "WARN: Node (location) %s for dev (node) %s missing" \
-                        % (d.location_id, d.id)
-                    continue
+                if  (  d.person_id
+                    and d.person_id != n.person_id
+                    and d.person_id in self.person_by_id
+                    ) :
+                    if (d.person_id, n.id) in secondary_nodes :
+                        node = secondary_nodes [(d.person_id, n.id)]
+                        print \
+                            ( "INFO: Device (node) %s, (loc) %s: "
+                              "existing secondary node for d:%s/n:%s"
+                            % (d.id, n.id, d.person_id, n.person_id)
+                            )
+                    else :
+                        print \
+                            ( "INFO: Device (node) %s, (loc) %s: "
+                              "manufacturing secondary node for d:%s/n:%s"
+                            % (d.id, n.id, d.person_id, n.person_id)
+                            )
+                        pn   = self.ffw_node.get (n.id)
+                        mgr  = self.person_by_id.get (d.person_id)
+                        txt  = 'Auto-created node (id: %s) for "%s"' \
+                             % (d.location_id, n.name)
+                        node = self.ffw.Node \
+                            ( name        = '/'.join ((n.name, d.name))
+                            , desc        = txt
+                            , manager     = mgr
+                            , raw         = True
+                            , show_in_map = pn.show_in_map
+                            , position    = pn.position
+                            )
+                        secondary_nodes [(d.person_id, n.id)] = node
+                else :
+                    node = self.ffw_node.get (d.location_id)
+                    if not node :
+                        print \
+                            ( "WARN: Node (location) %s "
+                              "for dev (node) %s missing" \
+                            % (d.location_id, d.id)
+                            )
+                        continue
             else :
                 mgr  = self.person_by_id.get (d.person_id) or self.graz_admin
                 node = self.ffw.Node \
@@ -221,7 +250,7 @@ class Convert (object) :
                     , manager     = mgr
                     , raw         = True
                     )
-                print "WARN: Manufacturing Node (loc: %s) for dev (node) %s" \
+                print "INFO: Manufacturing Node (loc: %s) for dev (node) %s" \
                     % (d.location_id, d.id)
             dev = self.ffw.Net_Device \
                 ( left = dt
