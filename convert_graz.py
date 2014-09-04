@@ -38,37 +38,38 @@ import Command
 
 class Convert (object) :
 
-        #  54 : 655 # nick == email vorn?
+        #  54  :  655 # nick == email vorn?
     person_dupes = \
-        {  71 :  72
-        , 140 : 460
-        , 179 : 124
-        , 267 : 322
-        , 273 : 272 # probably same unnamed person, almost same nick
-        , 276 : 272 # yet another dupe with almost same nick
-        , 307 : 306
-        , 314 : 311
-        , 372 : 380 # same phone *and* password (!) different name (!)
-        , 424 : 418
-        , 440 : 838
-        , 617 : 623
-        , 669 : 1001 # same person?
-        , 686 : 687
-        , 708 : 707
-        , 709 : 707
-        , 718 : 860
-        , 729 : 728
-        , 741 : 740
-        , 755 : 754
-        , 776 : 301
-        , 799 : 807
-        , 820 : 359
-        , 821 : 359
-        , 831 : 836
-        , 852 : 851
-        , 892 : 706
-        , 903 : 904
-        , 973 : 544
+        {  71  :   72
+        , 140  :  460
+        , 179  :  124
+        , 267  :  322
+        , 273  :  272 # probably same unnamed person, almost same nick
+        , 276  :  272 # yet another dupe with almost same nick
+        , 307  :  306
+        , 314  :  311
+        , 372  :  380 # same phone *and* password (!) different name (!)
+        , 424  :  418
+        , 440  :  838
+        , 617  :  623
+        , 669  : 1001 # same person?
+        , 686  :  687
+        , 708  :  707
+        , 709  :  707
+        , 718  :  860
+        , 729  :  728
+        , 741  :  740
+        , 755  :  754
+        , 776  :  301
+        , 799  :  807
+        , 820  :  359
+        , 821  :  359
+        , 831  :  836
+        , 852  :  851
+        , 892  :  706
+        , 903  :  904
+        , 973  :  544
+        , 1005 : 1007
         }
 
     person_ignore = dict.fromkeys \
