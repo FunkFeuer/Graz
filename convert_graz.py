@@ -321,12 +321,8 @@ class Convert (object) :
                 continue
             pool = pool_by_id [nw.id] = self.ffw.IP4_Pool (name = nw.name)
             if nw.name == 'GRAZ Client Subnet /29' :
-                try :
-                    self.ffw.IP4_Pool_permits_Group \
-                        (pool, self.fugru, node_quota = 29)
-                except Exception as exc :
-                    import pdb; pdb.set_trace ()
-
+                self.ffw.IP4_Pool_permits_Group \
+                    (pool, self.fugru, node_quota = 29)
             netmask = None
             try :
                 netmask = int (nw.name.split ('/') [-1])
