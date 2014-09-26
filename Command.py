@@ -60,6 +60,7 @@
 #    29-Aug-2014 (CT) Remove import for `AFS`
 #    01-Sep-2014 (MB) Move to FFG
 #     5-Sep-2014 (CT) Add `RST_addons.User_Net_Interface_in_IP_Network`
+#    26-Sep-2014 (CT) Add Alias for `/Doc/FFG`
 #    ««revision-date»»···
 #--
 
@@ -118,12 +119,12 @@ Name des Vereins
 :email:`FunkFeuer Graz <graz@lists.funkfeuer.at>` — Verein zur Förderung freier
 Netze
 
-`ZVR-Zahl`_: 810132312 
+`ZVR-Zahl`_: 810132312
 
 Vereinssitz
 -----------
 
-Wielandgasse 19/2 8010 Graz 
+Wielandgasse 19/2 8010 Graz
 
 .. _`ZVR-Zahl`: http://zvr.bmi.gv.at/Start
 
@@ -264,6 +265,11 @@ class Command (_Base_Command_, CNDB.Command) :
                 ( name            = "Doc"
                 , short_title     = _ ("Model doc")
                 , title           = _ ("Documentation for FFG object model")
+                )
+            , TOP.Alias \
+                ( name            = "/Doc/FFG"
+                , target          = "/Doc/CNDB"
+                , hidden          = True
                 )
             , TOP.MOM.Admin.Site
                 ( name            = "Admin"
