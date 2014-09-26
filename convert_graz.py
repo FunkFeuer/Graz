@@ -441,10 +441,11 @@ class Convert (object) :
             if n.street :
                 s = ' '.join (x for x in (n.street, n.streetnr) if x)
                 adr = self.pap.Address.instance_or_new \
-                    ( street = s
-                    , zip    = '8010'
-                    , city   = 'Graz'
+                    ( street  = s
+                    , zip     = '8010'
+                    , city    = 'Graz'
                     , country = 'Austria'
+                    , raw     = True
                     )
                 node.set (address = adr)
             if n.gallery_link :
