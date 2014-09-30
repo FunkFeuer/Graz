@@ -36,6 +36,80 @@ from   _MOM.import_MOM        import Q
 import _TFL.CAO
 import Command
 
+class Network (object) :
+
+    def __init__ (self, convert, ip, node, net_id, parent, owner) :
+        self.convert  = convert
+        self.ip       = ip
+        self.node     = node
+        self.netids   = {net_id : 1}
+        self.parent   = parent
+        self.owner    = owner
+        self.rescount = 0
+        self.res      = {}
+        self.network  = None
+    # end def __init__
+
+    def join (self, other) :
+        assert other.node      == self.node
+        assert other.parent    == self.parent
+        assert other.owner     == self.owner
+        assert other.ip.parent == self.ip.parent
+        self.netids.update (other.netids)
+        self.ip = self.ip.parent
+    # end def join
+
+    def reserve (self, ip) :
+        assert ip in self.ip
+        assert ip not in self.res
+        self.res [ip]  = 1
+        self.rescount += 1
+        if self.ip.mask < 32 :
+            if not self.network :
+                self.reserve_network ()
+            return self.network
+        return self.parent
+    # end def reserve
+
+    def reserve_network (self) :
+        if self.network :
+            return self.network
+        # Don't reserve a pool for allocated single ips
+        if self.rescount and self.ip.mask == 32 :
+            print "Fully reserved: %s" % self.ip
+            return
+        if self.parent :
+            assert self.ip in self.parent.net_address
+            assert self.ip != self.parent.net_address
+            reserver = self.parent.reserve
+        else :
+            print "WARN: No parent: new network: %s" % self.ip
+            reserver = self.convert.ffw.IP4_Network
+        network = reserver (self.ip, owner = self.owner)
+        print "reserved: %s" % self.ip,
+        comment = {}
+        for k in self.netids :
+            self.convert.net_by_id [k] = network
+            n = self.convert.ff_net_by_id [k]
+            if n.comment :
+                comment [n.comment] = 1
+        if comment :
+            network.set_raw (desc = '\n'.join (sorted (comment)))
+        if self.node :
+            node = self.node
+            print node.name,
+            if node not in self.convert.node_pools :
+                self.convert.node_pools [node] = self.convert.ffw.IP4_Pool \
+                    (name = node.name, node = node)
+            pool = self.convert.node_pools [node]
+            self.convert.ffw.IP4_Network_in_IP4_Pool (network, pool)
+        print
+        self.network = network
+        return network
+    # end def reserve_network
+
+# end class Network
+
 class Convert (object) :
 
         #  54  :  655 # nick == email vorn?
@@ -170,6 +244,7 @@ class Convert (object) :
         self.node_by_id   = {}
         self.person_by_id = {}
         self.phone_ids    = {}
+        self.node_pools   = {}
     # end def __init__
 
     def create (self) :
@@ -285,34 +360,16 @@ class Convert (object) :
                 continue
             dev = self.dev_by_id [iface.node_id]
             ip  = IP4_Address (iface.ip)
+            # Originally in a /32 reserved network
             if ip in self.node_ips :
-                assert iface.net_id == self.node_ips [ip][1]
-                net = self.node_ips [ip][2]
+                nw = self.node_ips [ip]
+                net = nw.reserve (ip)
                 assert ip in net.net_address
-                del self.node_ips [ip]
-            elif iface.net_id in self.node_ip_ids :
-                # Buggy data, id refers to different ip
-                n_ip = self.node_ip_ids [iface.net_id]
-                print "WARN: Found by id: %s %s %s" % (iface.net_id, n_ip, ip)
-                assert n_ip != ip
-                net = self.node_ips [n_ip][2]
+                if iface.net_id not in nw.netids :
+                    print "WARN: Referenced wrong network: %s %s" \
+                        % (iface.net_id, ip)
             else :
                 net = self.net_by_id [iface.net_id]
-            if ip not in net.net_address :
-                # fix buggy data above
-                parent = self.ffw.IP4_Network.query \
-                    ( Q.net_address.CONTAINS (ip)
-                    , ~ Q.electric
-                    , sort_key = TFL.Sorted_By ("-net_address.mask_len")
-                    ).first ()
-                print "WARN: IP %s %s not in net %s %s found %s" \
-                    % ( iface.id
-                      , iface.ip
-                      , iface.net_id
-                      , net.net_address
-                      , parent.net_address
-                      )
-                net = parent
             nw  = net.reserve (ip, owner = dev.node.owner)
             nif = self.ffw.Wired_Interface (left = dev, name = iface.name)
             nii = self.ffw.Net_Interface_in_IP4_Network \
@@ -320,41 +377,8 @@ class Convert (object) :
             self.nifin_by_id [iface.id] = nii
             if len (self.scope.uncommitted_changes) > 10 :
                 self.scope.commit ()
-        node_pools = {}
-        while self.node_ips :
-            for ip in self.node_ips.keys () :
-                sib = (k for k in ip.parent.subnets (ip.mask)
-                       if ip.is_sibling (k)
-                      ).next ()
-                if  (   sib in self.node_ips
-                    and self.node_ips [sib][0] == self.node_ips [ip][0]
-                    ) :
-                    c = self.node_ips [ip]
-                    assert c [2] == self.node_ips [sib][2]
-                    assert c [3] == self.node_ips [sib][3]
-                    del self.node_ips [ip]
-                    del self.node_ips [sib]
-                    self.node_ips [ip.parent] = c
-                elif ip not in self.node_ips :
-                    # found via sibling
-                    pass
-                else :
-                    c = self.node_ips [ip]
-                    del self.node_ips [ip]
-                    node = c [0]
-                    assert ip in c [2].net_address
-                    assert ip != c [2].net_address
-                    nw = c [2].reserve (ip, owner = c [3])
-                    print "reserved: %s" % ip,
-                    if node :
-                        print node.name,
-                        name = ':'.join ((node.name, str (ip)))
-                        if node not in node_pools :
-                            node_pools [node] = self.ffw.IP4_Pool \
-                                (name = name, node = node)
-                        pool = node_pools [node]
-                        self.ffw.IP4_Network_in_IP4_Pool (nw, pool)
-                    print
+        for ip in self.node_ips :
+            self.node_ips [ip].reserve_network ()
     # end def create_interfaces
 
     def create_nettypes (self) :
@@ -409,9 +433,11 @@ class Convert (object) :
     # end def create_nettypes
 
     def create_networks (self) :
-        self.node_ips = {}
-        self.node_ip_ids = {}
+        self.node_ips     = {}
+        ipdict            = {}
+        self.ff_net_by_id = {}
         for net in self.contents ['net'] :
+            self.ff_net_by_id [net.id] = net
             parents = self.ntype_by_id.get (net.nettype_id, [])
             node    = self.ffw_node.get (net.location_id)
             ip      = IP4_Address (net.netip, net.netmask)
@@ -445,25 +471,41 @@ class Convert (object) :
                         ).first ()
                     if parent :
                         print "Got parent by network query: %s" % parent
-            if parent :
-                reserver = parent.reserve
-            else :
-                print "WARN: No parent: new network: %s" % ip
-                reserver = self.ffw.IP4_Network
-            if ip.mask == 32 :
-                self.node_ips [ip] = (node, net.id, parent, owner)
-                self.node_ip_ids [net.id] = ip
-                continue
-            network = reserver (ip, owner = owner)
-            if net.comment :
-                network.set_raw (desc = net.comment)
-            self.net_by_id [net.id] = network
-            if node :
-                name = ':'.join ((node.name, str (network.net_address)))
-                pool = self.ffw.IP4_Pool (name = name, node = node)
-                self.ffw.IP4_Network_in_IP4_Pool (network, pool)
+            ipdict [ip] = Network (self, ip, node, net.id, parent, owner)
+
+        mask = 32
+        while mask and ipdict :
+            # Dict is modified during iteration, use keys ()
+            for ip in ipdict.keys () :
+                # already found via sibling or network still too big
+                if ip.mask < mask or ip not in ipdict :
+                    continue
+                assert ip.mask == mask
+                nw = ipdict [ip]
+                sib = (k for k in ip.parent.subnets (ip.mask)
+                       if ip.is_sibling (k)
+                      ).next ()
+                # Sibling has same node? -> join to bigger net
+                # Only join networks that *have* a node
+                if  (   sib in ipdict
+                    and nw.node
+                    and ipdict [sib].node == nw.node
+                    ) :
+                    nw.join (ipdict [sib])
+                    del ipdict [ip]
+                    del ipdict [sib]
+                    ipdict [ip.parent] = nw
+                else :
+                    del ipdict [ip]
+                    if nw.node and nw.ip.mask >= 24 :
+                        # Don't reserve now, if allocated we don't want a pool
+                        for i in nw.ip.subnets (32) :
+                            self.node_ips [i] = nw
+                    else :
+                        nw.reserve_network ()
             if len (self.scope.uncommitted_changes) > 10 :
                 self.scope.commit ()
+            mask -= 1
     # end def create_networks
 
     def create_nodes (self) :
