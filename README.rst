@@ -140,23 +140,23 @@ estimate how often you want to change external packages::
 
 Create user and database user permitted to create databases::
 
- $ adduser ffw
- $ createuser -d ffw -P
+ $ adduser ffg
+ $ createuser -d ffg -P
 
 How to install
 --------------
 
-Assuming an account `ffw` located in /home/ffw, you'll need something
+Assuming an account `ffg` located in /home/ffg, you'll need something
 like the following::
 
-  ### Logged in as `ffw`
-  $ cd /home/ffw
+  ### Logged in as `ffg`
+  $ cd /home/ffg
 
   ### Define config
-  $ vi .ffw.config
+  $ vi .ffg.config
     ### Add the lines (using the appropriate values for **your** install)::
       cookie_salt   = 'some random value, e.g., the result of uuid.uuid4 ()'
-      db_name       = "ffw"
+      db_name       = "ffg"
       db_url        = "postgresql://<account>:<password>@localhost"
       languages     = "de", "en"
       locale_code   = "de"
@@ -206,26 +206,26 @@ system should something go wrong during the upgrade::
   $ git clone git://github.com/FFM/FFG.git     v/1/www/app
   $ cp -a v/1 v/2
 
-  $ vi active/www/.ffw.config
+  $ vi active/www/.ffg.config
     ### Add the lines (using the appropriate values for **your** install)::
-      db_name       = "ffw1"
-  $ vi passive/www/.ffw.config
-      db_name       = "ffw2"
+      db_name       = "ffg1"
+  $ vi passive/www/.ffg.config
+      db_name       = "ffg2"
 
   ### Define PYTHONPATH
-  $ export PYTHONPATH=/home/ffw/active/cndb:/home/ffw/active/tapyr
+  $ export PYTHONPATH=/home/ffg/active/cndb:/home/ffg/active/tapyr
 
 With a small config-file, the deploy-app can automatically create an
 Apache configuration file and a fcgi script. You can find sample
 config-files in active/www/app/httpd_config/. For instance,
-active/www/app/httpd_config/ffw_gg32_com__443.config contains::
+active/www/app/httpd_config/ffg_gg32_com__443.config contains::
 
-        config_path     = "~/fcgi/ffw_gg32_com__443.config"
+        config_path     = "~/fcgi/ffg_gg32_com__443.config"
         host_macro      = "gtw_host_ssl"
         port            = "443"
-        script_path     = "~/fcgi/ffw_gg32_com__443.fcgi"
+        script_path     = "~/fcgi/ffg_gg32_com__443.fcgi"
         server_admin    = "christian.tanzer@gmail.com"
-        server_name     = "ffw.gg32.com"
+        server_name     = "ffg.gg32.com"
         ssl_key_name    = "srvr1-gg32-com-2048"
 
 Create a config::
@@ -260,6 +260,38 @@ Finally we create a database and populate it with data::
   $ python active/www/app/deploy.py create
 
   ### Put some data into the database
+
+During the testing phase: Whenever we upgrade the software, the
+converter (from the old Graz database to the new one) will be run again.
+The following steps will prepare the "passive" deployment version and
+run the converter. This is similar to migrating to a new version (see
+below) except that we're running the converter instead of migrating the
+old version (because usually the Graz database has moved on and we want
+the latest version from the latest dump)::
+
+    ### Set correct virtual environment and PYTHONPATH, note that we
+    ### need to explicitly set the PYTHONPATH to the passive environment
+    $ source PVE/active/bin/activate
+    $ export PYTHONPATH=/home/ffg/passive/cndb:/home/ffg/passive/tapyr
+
+    ### Update source code
+    $ python passive/www/app/deploy.py update
+
+    ### Byte compile python files
+    $ python passive/www/app/deploy.py pycompile
+
+    ### Compile translations
+    $ python passive/www/app/deploy.py babel compile
+
+    ### Run the converter with database dump version XXXX
+    $ python passive/www/app/convert_graz.py ffgraz_XXXX
+
+    ### Setup app cache
+    $ python passive/www/app/deploy.py setup_cache
+
+  ### Switch active and passive branches
+  $ python passive/www/app/deploy.py switch
+  $ sudo /etc/init.d/apache2 restart
 
 Whenever we need to upgrade the installation, we can update the passive
 configuration, set up everything, migrate the data from the active to
