@@ -2,10 +2,14 @@
 # -*- coding: utf-8 -*-
 # #*** <License> ************************************************************#
 # This module is part of the program FFG.
-# 
+#
 # This module is licensed under the terms of the BSD 3-Clause License
 # <http://www.c-tanzer.at/license/bsd_3c.html>.
 # #*** </License> ***********************************************************#
+
+from   __future__             import print_function
+
+from   _TFL.pyk               import pyk
 
 import sys, os
 import re
@@ -66,17 +70,17 @@ class Network (object) :
             return self.network
         # Don't reserve a pool for allocated single ips
         if self.rescount and self.ip.mask == 32 :
-            print "Fully reserved: %s" % self.ip
+            print ("Fully reserved: %s" % self.ip)
             return
         if self.parent :
             assert self.ip in self.parent.net_address
             assert self.ip != self.parent.net_address
             reserver = self.parent.reserve
         else :
-            print "WARN: No parent: new network: %s" % self.ip
+            print ("WARN: No parent: new network: %s" % self.ip)
             reserver = self.convert.ffw.IP4_Network
         network = reserver (self.ip, owner = self.owner)
-        print "reserved: %s" % self.ip,
+        print ("reserved: %s" % self.ip,)
         comment = {}
         for k in self.netids :
             self.convert.net_by_id [k] = network
@@ -87,7 +91,7 @@ class Network (object) :
             network.set_raw (desc = '\n'.join (sorted (comment)))
         if self.node :
             node = self.node
-            print node.name,
+            print (node.name, end = " ")
             if node not in self.convert.node_pools :
                 self.convert.node_pools [node] = self.convert.ffw.IP4_Pool \
                     (name = node.name, node = node)
@@ -208,7 +212,7 @@ class Convert (object) :
             for line in cr :
                 self.pers_exception [int (line [0])] = (line [1], line [2])
         except IOError :
-            print "WARN: Can't read additional person data"
+            print ("WARN: Can't read additional person data")
 
         self.debug = debug
         if len (cmd.argv) > 0 :
@@ -263,7 +267,7 @@ class Convert (object) :
         dt = self.ffw.Net_Device_Type.instance (name = 'Generic', raw = True)
         for d in sorted (self.contents ['node'], key = lambda x : x.id) :
             if self.verbose :
-                print "INFO: Dev: %s Node: %s" % (d.id, d.location_id)
+                print ("INFO: Dev: %s Node: %s" % (d.id, d.location_id))
             node = None
             n = self.node_by_id.get (d.location_id)
             if n :
@@ -315,8 +319,10 @@ class Convert (object) :
                     , manager     = mgr
                     , raw         = True
                     )
-                print "INFO: Manufacturing Node (loc: %s) for dev (node) %s" \
+                print \
+                    ( "INFO: Manufacturing Node (loc: %s) for dev (node) %s"
                     % (d.location_id, d.id)
+                    )
             dev = self.ffw.Net_Device \
                 ( left = dt
                 , node = node
@@ -333,8 +339,10 @@ class Convert (object) :
     def create_dns_aliases (self) :
         for dal in self.contents ['dnsalias'] :
             if dal.ip_id not in self.nifin_by_id :
-                print 'WARN: ignoring dns_alias %s "%s" IP not found %s' \
+                print \
+                    ( 'WARN: ignoring dns_alias %s "%s" IP not found %s'
                     % (dal.id, dal.name, dal.ip_id)
+                    )
                 return
             self.ffw.IP4_DNS_Alias \
                 (left = self.nifin_by_id [dal.ip_id], name = dal.name)
@@ -345,8 +353,10 @@ class Convert (object) :
     def create_interfaces (self) :
         for iface in self.contents ['ip'] :
             if iface.node_id not in self.dev_by_id :
-                print "WARN: Ignoring IP %s %s: no device (node) %s" \
+                print \
+                    ( "WARN: Ignoring IP %s %s: no device (node) %s"
                     % (iface.id, iface.ip, iface.node_id)
+                    )
                 continue
             dev = self.dev_by_id [iface.node_id]
             ip  = IP4_Address (iface.ip)
@@ -356,8 +366,10 @@ class Convert (object) :
                 net = nw.reserve (ip)
                 assert ip in net.net_address
                 if iface.net_id not in nw.netids :
-                    print "WARN: Referenced wrong network: %s %s" \
+                    print \
+                        ( "WARN: Referenced wrong network: %s %s"
                         % (iface.net_id, ip)
+                        )
             else :
                 net = self.net_by_id [iface.net_id]
             nw  = net.reserve (ip, owner = dev.node.owner)
@@ -386,7 +398,7 @@ class Convert (object) :
         # first group by netmask
         for nw in self.contents ['nettype'] :
             if not nw.comment :
-                print 'WARN: Ignoring nettype %s "%s"' % (nw.id, nw.name)
+                print ('WARN: Ignoring nettype %s "%s"' % (nw.id, nw.name))
                 continue
             pool = pool_by_id [nw.id] = self.ffw.IP4_Pool (name = nw.name)
             if nw.name == 'GRAZ Client Subnet /29' :
@@ -437,8 +449,10 @@ class Convert (object) :
             if node :
                 owner = node.owner
             else :
-                print "WARN: Network %s %s Location %s missing" \
+                print \
+                    ( "WARN: Network %s %s Location %s missing"
                     % (net.id, net.netip, net.location_id)
+                    )
                 owner = self.graz_admin
             parent = None
             for p in parents :
@@ -447,11 +461,11 @@ class Convert (object) :
                     break
             else :
                 parent = None
-                for ps in self.ntype_by_id.itervalues () :
+                for ps in pyk.itervalues (self.ntype_by_id) :
                     for p in ps :
                         if ip in p.net_address :
                             parent = p
-                            print "Got parent in ntype_by_id: %s" % parent
+                            print ("Got parent in ntype_by_id: %s" % parent)
                             break
                 else :
                     parent = self.ffw.IP4_Network.query \
@@ -460,7 +474,7 @@ class Convert (object) :
                         , sort_key = TFL.Sorted_By ("-net_address.mask_len")
                         ).first ()
                     if parent :
-                        print "Got parent by network query: %s" % parent
+                        print ("Got parent by network query: %s" % parent)
             ipdict [ip] = Network (self, ip, node, net.id, parent, owner)
 
         mask = 32
@@ -472,9 +486,10 @@ class Convert (object) :
                     continue
                 assert ip.mask == mask
                 nw = ipdict [ip]
-                sib = (k for k in ip.parent.subnets (ip.mask)
-                       if ip.is_sibling (k)
-                      ).next ()
+                sib = next \
+                    ( k for k in ip.parent.subnets (ip.mask)
+                        if  ip.is_sibling (k)
+                    )
                 # Sibling has same node? -> join to bigger net
                 # Only join networks that *have* a node
                 if  (   sib in ipdict
@@ -510,7 +525,7 @@ class Convert (object) :
             person_id = self.person_dupes.get (n.person_id, n.person_id)
             if person_id != 0 and person_id not in self.person_by_id :
                 # should not happen now
-                print "WARN: Location %s owner %s missing" % (n.id, person_id)
+                print ("WARN: Location %s owner %s missing" % (n.id, person_id))
                 continue
             if person_id == 0 :
                 person = self.graz_admin
@@ -574,23 +589,26 @@ class Convert (object) :
 
     def create_persons (self) :
         for m in sorted (self.contents ['person'], key = lambda x : x.id) :
-            #print "%s: %r %r" % (m.id, m.firstname, m.lastname)
+            #print ("%s: %r %r" % (m.id, m.firstname, m.lastname))
             if m.id in self.person_ignore :
-                print "INFO: Ignoring anonymous without location: %s" % m.id
+                print ("INFO: Ignoring anonymous without location: %s" % m.id)
                 continue
             if m.id in self.pers_exception :
                 pe = self.pers_exception [m.id]
-                fn, ln = (x.decode ('utf-8') for x in pe)
+                fn, ln = (pyk.decoded (x, 'utf-8') for x in pe)
             else :
                 fn = m.firstname.strip ()
                 ln = m.lastname.strip ()
             self.member_by_id [m.id] = m
             if m.id in self.person_dupes :
-                print "INFO: Duplicate person: %s" % m.id
+                print ("INFO: Duplicate person: %s" % m.id)
                 continue
             if not fn or not ln :
-                print >> sys.stderr, "WARN: name missing: %s (%r/%r)" \
+                print \
+                    ( "WARN: name missing: %s (%r/%r)"
                     % (m.id, m.firstname, m.lastname)
+                    , file = sys.stderr
+                    )
                 if not fn and not ln :
                     if m.nick :
                         fn = m.nick
@@ -598,7 +616,7 @@ class Convert (object) :
                         fn = m.email.split ('@') [0]
                 fn = fn or '?'
                 ln = ln or '?'
-            print "Person: %s %r/%r" % (m.id, fn, ln)
+            print ("Person: %s %r/%r" % (m.id, fn, ln))
             person = self.pap.Person \
                 ( first_name = fn
                 , last_name  = ln
@@ -628,7 +646,7 @@ class Convert (object) :
             if len (self.scope.uncommitted_changes) > 10 :
                 self.scope.commit ()
         # get data from dupes
-        for d_id, m_id in self.person_dupes.iteritems () :
+        for d_id, m_id in pyk.iteritems (self.person_dupes) :
             # older version of db or dupe removed:
             if d_id not in self.member_by_id or m_id not in self.person_by_id :
                 continue
@@ -666,8 +684,10 @@ class Convert (object) :
                 eid = self.phone_ids [k]
                 prs = self.person_by_id [eid]
                 if eid != id :
-                    print "WARN: %s/%s %s/%s: Duplicate Phone: %s" \
+                    print \
+                        ( "WARN: %s/%s %s/%s: Duplicate Phone: %s"
                         % (eid, prs.pid, id, person.pid, tel)
+                        )
             else :
                 self.phone_ids [k] = id
                 phone = self.pap.Phone (*p)
@@ -680,8 +700,10 @@ class Convert (object) :
             eid = self.nicknames [lnick]
             prs = self.person_by_id [eid]
             if eid != id :
-                print "WARN: %s/%s %s/%s Duplicate Nickname: %s" \
+                print \
+                    ( "WARN: %s/%s %s/%s Duplicate Nickname: %s"
                     % (eid, prs.pid, id, person.pid, nick)
+                    )
         else :
             n = self.pap.Nickname (nick, raw = True)
             self.pap.Person_has_Nickname (person, n)
