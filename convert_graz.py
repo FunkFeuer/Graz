@@ -111,6 +111,7 @@ class Convert (object) :
         {  71  :   72
         , 140  :  460
         , 179  :  124
+        , 265  :  1039
         , 267  :  322
         , 273  :  272 # probably same unnamed person, almost same nick
         , 276  :  272 # yet another dupe with almost same nick
@@ -138,6 +139,7 @@ class Convert (object) :
         , 903  :  904
         , 973  :  544
         , 1005 : 1007
+        , 1036 : 1014
         }
 
     person_ignore = dict.fromkeys \
@@ -312,16 +314,20 @@ class Convert (object) :
                         continue
             else :
                 mgr  = self.person_by_id.get (d.person_id) or self.graz_admin
+                print \
+                    ( "INFO: Manufacturing Node (loc: %s) for dev (node) %s"
+                    % (d.location_id, d.id)
+                    )
+                name = d.name
+                exn  = self.ffw.Node.instance (d.name)
+                if exn :
+                    name = '-'.join ((str (d.location_id), d.name))
                 node = self.ffw.Node \
-                    ( name        = d.name
+                    ( name        = name
                     , desc        = 'Auto-created node (id: %s)' % d.location_id
                     , show_in_map = True
                     , manager     = mgr
                     , raw         = True
-                    )
-                print \
-                    ( "INFO: Manufacturing Node (loc: %s) for dev (node) %s"
-                    % (d.location_id, d.id)
                     )
             dev = self.ffw.Net_Device \
                 ( left = dt
@@ -626,7 +632,7 @@ class Convert (object) :
             self.person_by_id [m.id] = person
             if m.nick :
                 self.try_insert_nick (m.nick, m.id, person)
-            if m.email :
+            if m.email and m.email != '-' :
                 mail  = m.email.replace ('[at]', '@')
                 email = self.pap.Email (address = mail)
                 self.pap.Person_has_Email (person, email)
@@ -674,6 +680,9 @@ class Convert (object) :
     # end def set_creation
 
     def try_insert_phone (self, tel, id, person) :
+        if tel.startswith ('06-') :
+            print ("WARN: Ignoring invalid phone number: %s" % tel)
+            return
         if tel.startswith ('+430659') :
             tel = '+43650' + tel [6:]
         p = Phone (tel, city = "Graz")
