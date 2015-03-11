@@ -268,8 +268,7 @@ class Convert (object) :
         secondary_nodes = {}
         dt = self.ffw.Net_Device_Type.instance (name = 'Generic', raw = True)
         for d in sorted (self.contents ['node'], key = lambda x : x.id) :
-            if self.verbose :
-                print ("INFO: Dev: %s Node: %s" % (d.id, d.location_id))
+            self.vprint ("INFO: Dev: %s Node: %s" % (d.id, d.location_id))
             node = None
             n = self.node_by_id.get (d.location_id)
             if n :
@@ -279,13 +278,13 @@ class Convert (object) :
                     ) :
                     if (d.person_id, n.id) in secondary_nodes :
                         node = secondary_nodes [(d.person_id, n.id)]
-                        print \
+                        self.vprint \
                             ( "INFO: Device (node) %s, (loc) %s: "
                               "existing secondary node for d:%s/n:%s"
                             % (d.id, n.id, d.person_id, n.person_id)
                             )
                     else :
-                        print \
+                        self.vprint \
                             ( "INFO: Device (node) %s, (loc) %s: "
                               "manufacturing secondary node for d:%s/n:%s"
                             % (d.id, n.id, d.person_id, n.person_id)
@@ -314,7 +313,7 @@ class Convert (object) :
                         continue
             else :
                 mgr  = self.person_by_id.get (d.person_id) or self.graz_admin
-                print \
+                self.vprint \
                     ( "INFO: Manufacturing Node (loc: %s) for dev (node) %s"
                     % (d.location_id, d.id)
                     )
@@ -471,7 +470,8 @@ class Convert (object) :
                     for p in ps :
                         if ip in p.net_address :
                             parent = p
-                            print ("Got parent in ntype_by_id: %s" % parent)
+                            self.vprint \
+                                ("Got parent in ntype_by_id: %s" % parent)
                             break
                 else :
                     parent = self.ffw.IP4_Network.query \
@@ -480,7 +480,7 @@ class Convert (object) :
                         , sort_key = TFL.Sorted_By ("-net_address.mask_len")
                         ).first ()
                     if parent :
-                        print ("Got parent by network query: %s" % parent)
+                        self.vprint ("Got parent by network query: %s" % parent)
             ipdict [ip] = Network (self, ip, node, net.id, parent, owner)
 
         mask = 32
@@ -597,7 +597,7 @@ class Convert (object) :
         for m in sorted (self.contents ['person'], key = lambda x : x.id) :
             #print ("%s: %r %r" % (m.id, m.firstname, m.lastname))
             if m.id in self.person_ignore :
-                print ("INFO: Ignoring anonymous without location: %s" % m.id)
+                print ("WARN: Ignoring anonymous without location: %s" % m.id)
                 continue
             if m.id in self.pers_exception :
                 pe = self.pers_exception [m.id]
@@ -607,7 +607,7 @@ class Convert (object) :
                 ln = m.lastname.strip ()
             self.member_by_id [m.id] = m
             if m.id in self.person_dupes :
-                print ("INFO: Duplicate person: %s" % m.id)
+                print ("WARN: Duplicate person: %s" % m.id)
                 continue
             if not fn or not ln :
                 print \
@@ -622,7 +622,7 @@ class Convert (object) :
                         fn = m.email.split ('@') [0]
                 fn = fn or '?'
                 ln = ln or '?'
-            print ("Person: %s %r/%r" % (m.id, fn, ln))
+            self.vprint ("Person: %s %r/%r" % (m.id, fn, ln))
             person = self.pap.Person \
                 ( first_name = fn
                 , last_name  = ln
@@ -718,6 +718,11 @@ class Convert (object) :
             self.pap.Person_has_Nickname (person, n)
             self.nicknames [lnick] = id
     # end def try_insert_nick
+
+    def vprint (self, * args) :
+        if self.verbose :
+            print (* args)
+    # end def vprint
 
 # end def Convert
 
