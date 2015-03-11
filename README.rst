@@ -223,6 +223,7 @@ active/www/app/httpd_config/ffg_gg32_com__443.config contains::
         config_path     = "~/fcgi/ffg_gg32_com__443.config"
         host_macro      = "gtw_host_ssl"
         port            = "443"
+        root_dir        = "~/active"
         script_path     = "~/fcgi/ffg_gg32_com__443.fcgi"
         server_admin    = "christian.tanzer@gmail.com"
         server_name     = "ffg.gg32.com"
