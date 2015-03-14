@@ -245,7 +245,7 @@ also enable some needed modules::
 
   $ a2ensite nodedb2.example.com
   $ a2dissite default
-  $ a2enmod mod_expires
+  $ a2enmod expires
   $ a2enmod fcgid
   $ /etc/init.d/apache2 restart
 
