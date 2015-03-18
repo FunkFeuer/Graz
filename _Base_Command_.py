@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2012-2014 Mag. Christian Tanzer All rights reserved
+# Copyright (C) 2012-2015 Mag. Christian Tanzer All rights reserved
 # Glasauergasse 32, A--1130 Wien, Austria. tanzer@swing.co.at
 # #*** <License> ************************************************************#
 # This module is part of the program FFG.
-# 
+#
 # This module is licensed under the terms of the BSD 3-Clause License
 # <http://www.c-tanzer.at/license/bsd_3c.html>.
 # #*** </License> ***********************************************************#
@@ -36,6 +36,28 @@ class _Base_Command_ (TFL.Command.Root_Command) :
         _default = ".ffg.config"
 
     # end class Config
+
+    class Config_Dirs (TFL.Command.Root_Command.Config_Dirs) :
+        """Define the directories in which config files with relative names are
+           looked for.
+
+           If a config file with a specific name occurs in more than one config
+           directory, all occurences are read and the values combined. Values
+           read from later config directories override values defined in
+           earlier directories.
+
+           For an entry like "$app_dir/httpd_config", `$app_dir` will be
+           replaced by the directory where the `deploy.py` or `Command.py` was
+           loaded from. Using entries like `~/...` of `$app_dir/...`, allows
+           easy relocation of the projects files.
+        """
+
+        ### override `_defaults` with the Node-DB Graz specific list of config
+        ### directories
+        ### e.g.,
+        ###     _defaults = ("<config-dir-1>", "<config-dir-2>")
+
+    # end class Config_Dirs
 
 # end class _Base_Command_
 
