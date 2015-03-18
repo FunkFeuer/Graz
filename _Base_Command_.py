@@ -19,6 +19,7 @@
 #     3-Jun-2012 (CT) Creation
 #    17-Dec-2013 (CT) Add `httpd_config` to `Config_Dirs._defaults`
 #    01-Sep-2014 (MB) Moved to FFG
+#    18-Mar-2015 (CT) Added documentation for `Config_Dirs._defaults`
 #    ««revision-date»»···
 #--
 
@@ -37,27 +38,28 @@ class _Base_Command_ (TFL.Command.Root_Command) :
 
     # end class Config
 
-    class Config_Dirs (TFL.Command.Root_Command.Config_Dirs) :
-        """Define the directories in which config files with relative names are
-           looked for.
+    if False : ### enable if you want to override Config_Dirs._defaults
+        class Config_Dirs (TFL.Command.Root_Command.Config_Dirs) :
+            """Define the directories in which config files with relative names are
+               looked for.
 
-           If a config file with a specific name occurs in more than one config
-           directory, all occurences are read and the values combined. Values
-           read from later config directories override values defined in
-           earlier directories.
+               If a config file with a specific name occurs in more than one config
+               directory, all occurences are read and the values combined. Values
+               read from later config directories override values defined in
+               earlier directories.
 
-           For an entry like "$app_dir/httpd_config", `$app_dir` will be
-           replaced by the directory where the `deploy.py` or `Command.py` was
-           loaded from. Using entries like `~/...` of `$app_dir/...`, allows
-           easy relocation of the projects files.
-        """
+               For an entry like "$app_dir/httpd_config", `$app_dir` will be
+               replaced by the directory where the `deploy.py` or `Command.py` was
+               loaded from. Using entries like `~/...` of `$app_dir/...`, allows
+               easy relocation of the projects files.
+            """
 
-        ### override `_defaults` with the Node-DB Graz specific list of config
-        ### directories
-        ### e.g.,
-        ###     _defaults = ("<config-dir-1>", "<config-dir-2>")
+            ### override `_defaults` with the Node-DB Graz specific list of config
+            ### directories
+            ### e.g.,
+            ###     _defaults = ("<config-dir-1>", "<config-dir-2>")
 
-    # end class Config_Dirs
+        # end class Config_Dirs
 
 # end class _Base_Command_
 
