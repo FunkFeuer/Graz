@@ -634,19 +634,22 @@ class Convert (object) :
                 self.try_insert_nick (m.nick, m.id, person)
             if m.email and m.email != '-' :
                 mail  = m.email.replace ('[at]', '@')
-                email = self.pap.Email (address = mail)
-                self.pap.Person_has_Email (person, email)
-                if m.email == 'admin@graz.funkfeuer.at' :
-                    g = self.pap.Adhoc_Group ('Admin Group Graz')
-                    self.pap.Person_in_Group (person, g)
-                    self.graz_admin = g
-                auth = self.scope.Auth.Account.create_new_account_x \
-                    ( mail
-                    , enabled   = True
-                    , suspended = True
-                    , password  = uuid.uuid4 ().hex
-                    )
-                self.pap.Person_has_Account (person, auth)
+                try :
+                    email = self.pap.Email (address = mail)
+                    self.pap.Person_has_Email (person, email)
+                    if m.email == 'admin@graz.funkfeuer.at' :
+                        g = self.pap.Adhoc_Group ('Admin Group Graz')
+                        self.pap.Person_in_Group (person, g)
+                        self.graz_admin = g
+                    auth = self.scope.Auth.Account.create_new_account_x \
+                        ( mail
+                        , enabled   = True
+                        , suspended = True
+                        , password  = uuid.uuid4 ().hex
+                        )
+                    self.pap.Person_has_Account (person, auth)
+                except Exception as exc :
+                    print ("WARN: %s" % exc)
             if m.tel :
                 self.try_insert_phone (m.tel, m.id, person)
             if len (self.scope.uncommitted_changes) > 10 :
