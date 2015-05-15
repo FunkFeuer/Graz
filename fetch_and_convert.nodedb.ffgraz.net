@@ -1,0 +1,20 @@
+#! /bin/sh
+### Ad-hoc script to automate conversion of FF Graz database from mySQL
+PYTHONPATH=/srv/ffg/active/cndb:/srv/ffg/active/tapyr
+export PYTHONPATH
+
+stamp=`date +'%Y-%m-%d'`
+dump_file="$HOME/ffgraz-dump-$stamp"
+temp_file="migration.tmp"
+migration="$HOME/migration-$stamp.ffg"
+log_file="$HOME/migration-$stamp.log"
+
+manman-fetcher > $dump_file 2> /dev/null
+
+python ~ffg/active/www/app/convert_graz.py \
+    -db_url hps:$temp_file --create $dump_file > $log_file \
+    && mv $temp_file $migration && rm -f $dump_file $log_file
+
+rm -f $temp_file
+
+### __END__ fetch_and_convert.nodeb.ffgraz.net

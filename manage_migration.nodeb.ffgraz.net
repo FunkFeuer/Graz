@@ -1,0 +1,22 @@
+#! /bin/sh
+### cronjob run by root to migrate mySQL-conversion to postgresql
+
+stamp=`date +'%Y-%m-%d'`
+migration="migration-$stamp.ffg"
+from_dir=$1
+
+if [ -z "$from_dir" ]
+then
+    echo 'Specify directory containing converted migration as $1' 1>&2
+    exit 1
+fi
+
+if mv $from_dir/$migration ~ffg/
+then
+    chown ffg:ffg ~ffg/$migration
+    /etc/init.d/apache2 stop
+        su -c ~ffg/active/www/app/migrate_conversion.nodeb.ffgraz.net ffg
+    /etc/init.d/apache2 start
+fi
+
+### __END__ manage_migration.nodeb.ffgraz.net

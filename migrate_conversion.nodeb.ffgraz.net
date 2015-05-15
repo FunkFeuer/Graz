@@ -1,0 +1,14 @@
+#! /bin/sh
+### Ad-hoc script to migrate mySQL-conversion to postgresql
+PYTHONPATH=$HOME/active/cndb:$HOME/active/tapyr
+export PYTHONPATH
+
+stamp=`date +'%Y-%m-%d'`
+migration="$HOME/migration-$stamp.ffg"
+log_file="$HOME/migration-$stamp.log"
+
+python $HOME/active/www/app/Command.py migrate \
+    -Auth_Migrate -db_url hps:///$migration -overwrite -verbose \
+    > $log_file && rm -f $log_file
+
+### __END__ migrate_conversion.nodeb.ffgraz.net
