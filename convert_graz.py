@@ -688,22 +688,25 @@ class Convert (object) :
             return
         if tel.startswith ('+430659') :
             tel = '+43650' + tel [6:]
-        p = Phone (tel, city = "Graz")
-        if p :
-            k = str (p)
-            t = self.pap.Phone.instance (*p)
-            if t :
-                eid = self.phone_ids [k]
-                prs = self.person_by_id [eid]
-                if eid != id :
-                    print \
-                        ( "WARN: %s/%s %s/%s: Duplicate Phone: %s"
-                        % (eid, prs.pid, id, person.pid, tel)
-                        )
-            else :
-                self.phone_ids [k] = id
-                phone = self.pap.Phone (*p)
-                self.pap.Person_has_Phone (person, phone)
+        try :
+            p = Phone (tel, city = "Graz")
+            if p :
+                k = str (p)
+                t = self.pap.Phone.instance (*p)
+                if t :
+                    eid = self.phone_ids [k]
+                    prs = self.person_by_id [eid]
+                    if eid != id :
+                        print \
+                            ( "WARN: %s/%s %s/%s: Duplicate Phone: %s"
+                            % (eid, prs.pid, id, person.pid, tel)
+                            )
+                else :
+                    self.phone_ids [k] = id
+                    phone = self.pap.Phone (*p)
+                    self.pap.Person_has_Phone (person, phone)
+        except Exception as exc :
+            print ("WARN: %s for %s" % (tel, person))
     # end def try_insert_phone
 
     def try_insert_nick (self, nick, id, person) :
