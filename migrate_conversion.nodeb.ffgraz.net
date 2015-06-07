@@ -9,6 +9,6 @@ log_file="$HOME/migration-$stamp.log"
 
 python $HOME/active/www/app/Command.py migrate \
     -Auth_Migrate -db_url hps:///$migration -overwrite -verbose \
-    > $log_file && rm -f $log_file
+    > $log_file && rm -f $log_file && rm -f $migration
 
 ### __END__ migrate_conversion.nodeb.ffgraz.net
