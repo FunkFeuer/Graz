@@ -26,7 +26,7 @@
 {%- block source_code -%}
   {{ super () }}
   Den Funkfeuer-Graz spezifischen Source Code findest du auf
-  <a href="http://github.com/FFM/FFG/">github</a>.
+  <a href="http://github.com/Funkfeuer/Graz/">github</a>.
 {%- endblock source_code -%}
 
 {%- block welcome_image -%}
@@ -39,7 +39,7 @@
     Die common Node Data Base ist ein Projekt bei
     Funkfeuer, um die alte bestehende Verwaltungs-Datenbank zu ersetzen und
     zu erweitern. Während die alte Datenbank uns viele Jahre erfolgreich
-    gedient hat und die IP Adressenverwaltung bei Funkfeuer Wien überhaupt
+    gedient hat und die IP Adressenverwaltung bei Funkfeuer Graz überhaupt
     ermöglicht hat, gab es — wie so oft — im Laufe der Zeit immer
     mehr Wünsche bezüglich neuer Funktionalität.
   </p>
