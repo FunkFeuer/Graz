@@ -31,7 +31,7 @@ import _TFL.CAO
 import Command
 
 def _warn (* msgs) :
-    print ("WARN:", * msgs)
+    pyk.fprint ("WARN:", * msgs, encoding = "utf-8")
 # end def _warn
 
 class Network (object) :
@@ -624,7 +624,7 @@ class Convert (object) :
                 fn = fn or '?'
                 ln = ln or '?'
             self.vprint ("Person: %s %r/%r" % (m.id, fn, ln))
-            person = self.pap.Person \
+            person = self.pap.Person.instance_or_new \
                 ( first_name = fn
                 , last_name  = ln
                 , raw        = True
@@ -642,15 +642,16 @@ class Convert (object) :
                         g = self.pap.Adhoc_Group ('Admin Group Graz')
                         self.pap.Person_in_Group (person, g)
                         self.graz_admin = g
-                    auth = self.scope.Auth.Account.create_new_account_x \
-                        ( mail
-                        , enabled   = True
-                        , suspended = True
-                        , password  = uuid.uuid4 ().hex
-                        )
-                    self.pap.Person_has_Account (person, auth)
+                    if not person.accounts :
+                        auth = self.scope.Auth.Account.create_new_account_x \
+                            ( mail
+                            , enabled   = True
+                            , suspended = True
+                            , password  = uuid.uuid4 ().hex
+                            )
+                        self.pap.Person_has_Account (person, auth)
                 except Exception as exc :
-                    _warn (exc)
+                    _warn (person.ui_display, exc)
             if m.tel :
                 self.try_insert_phone (m.tel, m.id, person)
             if len (self.scope.uncommitted_changes) > 10 :

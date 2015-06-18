@@ -1,12 +1,12 @@
-*.ffm
-*.ffm.X
+*.ffg
+*.ffg.X
 *.pck
 *.py[co]
 guifi.xml
 *.mo
 media/v
-ffm
-ffm-journal
+ffg
+ffg-journal
 *.dump
 CA/
 test.hps*
