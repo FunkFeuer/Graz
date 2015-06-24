@@ -34,6 +34,32 @@ def _warn (* msgs) :
     pyk.fprint ("WARN:", * msgs, encoding = "utf-8")
 # end def _warn
 
+net_interface_type = dict \
+    ( br0      = 'Wired_Interface'
+    , eth      = 'Wired_Interface'
+    , eth0     = 'Wired_Interface'
+    , eth1     = 'Wired_Interface'
+    , eth2     = 'Wired_Interface'
+    , glue     = 'Wired_Interface'
+    , lan      = 'Wired_Interface'
+    , ln       = 'Wired_Interface'
+    , mesh     = 'Wireless_Interface'
+    , mgmt     = 'Wired_Interface'
+    , public   = 'Wired_Interface'
+    , rd       = 'Wired_Interface'
+    , tap      = 'Wired_Interface'
+    , tap0     = 'Wired_Interface'
+    , tun      = 'Wired_Interface'
+    , vlan     = 'Wired_Interface'
+    , vlan0    = 'Wired_Interface'
+    , vlan1    = 'Wired_Interface'
+    , vlan2    = 'Wired_Interface'
+    , vlan3    = 'Wired_Interface'
+    , vlan502  = 'Wired_Interface'
+    , wan      = 'Wired_Interface'
+    , wifi     = 'Wireless_Interface'
+    )
+
 class Network (object) :
 
     def __init__ (self, convert, ip, node, net_id, parent, owner) :
@@ -380,7 +406,18 @@ class Convert (object) :
             else :
                 net = self.net_by_id [iface.net_id]
             nw  = net.reserve (ip, owner = dev.node.owner)
-            nif = self.ffw.Wired_Interface (left = dev, name = iface.name)
+            ifn = net_interface_type.get (iface.name)
+            ifc = getattr (self.ffw, ifn, None) if ifn else None
+            if  (  ifc is None
+                and (  iface.name.startswith ('wifi')
+                    or iface.name.endswith   ('wifi')
+                    )
+                ) :
+                ifc = self.ffw.Wireless_Interface
+            if not ifc :
+                _warn ("No interface type found, using wired: %s" % iface.name)
+                ifc = self.ffw.Wired_Interface
+            nif = ifc (left = dev, name = iface.name)
             nii = self.ffw.Net_Interface_in_IP4_Network \
                 (nif, nw, mask_len = 32, name = iface.name)
             self.nifin_by_id [iface.id] = nii
