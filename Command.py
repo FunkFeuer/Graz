@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2012-2014 Mag. Christian Tanzer All rights reserved
+# Copyright (C) 2012-2015 Mag. Christian Tanzer All rights reserved
 # Glasauergasse 32, A--1130 Wien, Austria. tanzer@swing.co.at
 # #*** <License> ************************************************************#
 # This module is part of the program FFG.
@@ -51,6 +51,7 @@
 #    01-Sep-2014 (MB) Move to FFG
 #     5-Sep-2014 (CT) Add `RST_addons.User_Net_Interface_in_IP_Network`
 #    26-Sep-2014 (CT) Add Alias for `/Doc/FFG`
+#    29-Jul-2015 (CT) Adapt to name change of PAP.Phone attributes
 #    ««revision-date»»···
 #--
 
@@ -79,7 +80,7 @@ from   _TFL._Meta.Property      import Class_Property
 
 import _TFL.CAO
 
-GTW.OMP.PAP.Phone.change_attribute_default         ("country_code", "43")
+GTW.OMP.PAP.Phone.change_attribute_default ("cc", "+43")
 
 FFG.Version = Product_Version \
     ( productid           = u"FFG node data base"
