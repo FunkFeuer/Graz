@@ -7,7 +7,6 @@
 # <http://www.c-tanzer.at/license/bsd_3c.html>.
 # #*** </License> ***********************************************************#
 
-from   __future__             import print_function
 
 from   _TFL.pyk               import pyk
 
@@ -31,7 +30,7 @@ import _TFL.CAO
 import Command
 
 def _warn (* msgs) :
-    pyk.fprint ("WARN:", * msgs, encoding = "utf-8")
+    print ("WARN:", * msgs, encoding = "utf-8")
 # end def _warn
 
 net_interface_type = dict \
